@@ -33,7 +33,7 @@ def switch_player(P, P1, P2):
         return P2
     else:
         return P1
-
+# function to assess if game is over
 def game_over (entered_P):
     i = 0
     sum_row = 0
