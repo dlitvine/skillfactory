@@ -1,7 +1,7 @@
 from random import randint
 
 
-# dot class definition and methods
+# Dot class definition and methods
 
 class Dot:
 
@@ -22,23 +22,21 @@ class Dot:
         return f'(x: {self.x}, y: {self.y})'
 
 
-# class BoardException(Exception):
-#    pass
-
-
 class Out(Exception):
     def __str__(self):
-        return "Out of board range!"
+        return "ARE YOU NUTS? WATCH THE BOARD!"
 
 
 class Used(Exception):
     def __str__(self):
-        return "This one was shot before"
+        return "THIS IS MOST STUPID MOVE, TRY AGAIN!"
 
 
 class BadShip(Exception):
     pass
 
+
+# defining class  Ship
 
 class Ship:
     def __init__(self, head, length, orientation):
@@ -62,9 +60,6 @@ class Ship:
 
         return ship_dots
 
-#    def hit(self, shot):
-#        return shot in self.dots
-
 
 class Board:
     def __init__(self, size, hidden=False):
@@ -73,7 +68,6 @@ class Board:
         self.count = 0
         i = 0
         self.matrix = [["_"] * self.size for i in range(self.size)]
-#        print(self.matrix)
         self.busy = []
         self.ships = []
 
@@ -82,14 +76,12 @@ class Board:
         for dot_ in ship.dots:
             if self.out(dot_) or dot_ in self.busy:
                 raise BadShip()
- #       for dot_ in ship.dots:
             self.matrix[dot_.x][dot_.y] = "■"
             self.busy.append(dot_)
-
         self.ships.append(ship)
         self.canvas(ship)
 
-    def canvas(self, ship, verb=False):
+    def canvas(self, ship, dead=False):
         around_ = [
             (-1, -1), (-1, 0), (-1, 1),
             (0, -1), (0, 0), (0, 1),
@@ -99,14 +91,14 @@ class Board:
             for d_x, d_y in around_:
                 can_ = Dot(dot_.x + d_x, dot_.y + d_y)
                 if not (self.out(can_)) and can_ not in self.busy:
-                    if verb:
+                    if dead:
                         self.matrix[can_.x][can_.y] = "*"
                     self.busy.append(can_)
 
     def __str__(self):
         res = " "
         for n in range(self.size):
-            res = res + "   " + str(n+1)
+            res = res + "   " + str(n + 1)
         for i, row in enumerate(self.matrix):
             res += f"\n{i + 1} | " + " | ".join(row) + " |"
 
@@ -132,7 +124,7 @@ class Board:
                 self.matrix[dot_.x][dot_.y] = "X"
                 if ship.lives == 0:
                     self.count += 1
-                    self.canvas(ship, verb=True)
+                    self.canvas(ship, dead=True)
                     print("The ship is destroyed")
                     return False
                 else:
@@ -159,16 +151,15 @@ class Player:
         while True:
             try:
                 target = self.ask()
-#                print ("target",  target)
                 repeat = self.enemy.shot(target)
                 return repeat
             except Exception as e:
                 print(e)
 
 
-class AI(Player):
+class Comp(Player):
     def ask(self):
-        x, y = randint(0, self.board.size-1), randint(0, self.board.size-1)
+        x, y = randint(0, self.board.size - 1), randint(0, self.board.size - 1)
         dot_ = Dot(x, y)
         print(f"Computer shoot at: {x + 1} {y + 1}")
         return dot_
@@ -185,11 +176,12 @@ class User(Player):
             except:
                 print("You have to enter two digits, comma in between")
 
-class Game:
+
+class TheGame:
     def __init__(self):
-        print("-"*50)
+        print("-" * 50)
         print("  Hello there, welcome to Sea Battle! ")
-        print("-"*50)
+        print("-" * 50)
         size_correct = False
         while size_correct == False:
             try:
@@ -202,7 +194,7 @@ class Game:
         computer = self.random_board()
         player.hidden = False
         computer.hidden = True
-        self.comp = AI(computer, player)
+        self.comp = Comp(computer, player)
         self.user = User(player, computer)
 
     def random_board(self):
@@ -220,7 +212,7 @@ class Game:
                 attempts += 1
                 if attempts > self.size ** 2:
                     return None
-                ship = Ship(Dot(randint(0, self.size-1), randint(0, self.size-1)), length, randint(0, 1))
+                ship = Ship(Dot(randint(0, self.size - 1), randint(0, self.size - 1)), length, randint(0, 1))
                 try:
                     board.add_ship(ship)
                     break
@@ -240,7 +232,7 @@ class Game:
             print(self.comp.board)
             if num % 2 == 0:
                 print("-" * 20)
-                print("Your move")
+                print("YOUR MOVE")
                 repeat = self.user.move()
             else:
                 print("-" * 20)
@@ -252,11 +244,15 @@ class Game:
             if self.comp.board.count == 7:
                 print("-" * 20)
                 print("You won!")
+                print("Computer board:")
+                print(self.comp.board)
                 break
 
             if self.user.board.count == 7:
                 print("-" * 20)
                 print("You lost!")
+                print("Player board:")
+                print(self.user.board)
                 break
             num += 1
 
@@ -264,5 +260,5 @@ class Game:
         self.loop()
 
 
-g = Game()
+g = TheGame()
 g.start()
