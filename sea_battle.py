@@ -210,7 +210,7 @@ class TheGame:
         for length in ship_set:
             while True:
                 attempts += 1
-                if attempts > self.size ** 2:
+                if attempts > self.size ** 5:
                     return None
                 ship = Ship(Dot(randint(0, self.size - 1), randint(0, self.size - 1)), length, randint(0, 1))
                 try:
